@@ -148,13 +148,17 @@ Hi, Euler!
         let lines = resp.getElementsByTagName('line');
         for(let i = 0; i < lines.length; i++){
             let aline = lines[i];
+            let poses = [];
             let strs = aline.getElementsByTagName('charParams');
             let equ = '';
             for(let j = 0; j < strs.length; j++){
                 equ += strs[j].childNodes[0].nodeValue;
+                poses[j] = Number(strs[j].getAttribute('r'));
             }
+
             equs[i] = {
                 equ: equ,
+                pos: poses,
                 l: Number(aline.getAttribute('l')),
                 t: Number(aline.getAttribute('t')),
                 r: Number(aline.getAttribute('r')),
