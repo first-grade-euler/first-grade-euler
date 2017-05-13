@@ -5,6 +5,7 @@
 
 html, body {
     height: 100%;
+    background: white;
 }
 
 body > div.container {
@@ -17,6 +18,14 @@ body > div.container {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.center .btn-group > * {
+    height: 80px;
+    display: inline-flex;
+    margin: 0px 15px 0px 15px !important;
+    align-items: center;
+    justify-content: center;
 }
 
 #output-container {

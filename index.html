@@ -35,12 +35,18 @@
 <div class="center">
     <form enctype="multipart/form-data">
         <div class="btn-group">
-            <a class="btn btn-link" href=".">
-                First Grade Euler
+            <a class="btn btn-link" href="."
+               style="font-family:Handlee;display: inline-block;line-height: 23px;">
+                <span style="display: block; color:#8CC237;">First</span>
+                <span style="display: block; color:#0097E4;">Grade</span>
+                <span style="display: block; color:#404040;">Euler</span>
             </a>
             <label for="input" class="btn btn-info btn-raised">Upload
                 <input name="file" type="file" id="input" accept="image/jpeg, image/png" style="display: none;">
             </label>
+            <a class="btn btn-link" href="." style="padding: 0px;">
+                <img src="favicon.ico" alt="" height="100%">
+            </a>
         </div>
     </form>
 </div>
@@ -66,7 +72,7 @@
         reader.onload = function (e) {
             let img = e.target.result;
             OUTPUT.innerHTML = '<img src="' + img + '" alt="output image" id="output-image" class="img-fluid">';
-            document.getElementsByClassName("center")[0].setAttribute("style", "height: auto;");
+            document.getElementsByClassName("center")[0].setAttribute("style", "height: 50%;");
         };
         reader.readAsDataURL(file);
     }
@@ -213,7 +219,7 @@
     function fixRPos(e, f, p) {
         let id = e.search(/=/);
         if (id > 0) return p[id];
-        return p[p.length-1];
+        return p[p.length - 1];
     }
 
     function writeEqu(e) {
