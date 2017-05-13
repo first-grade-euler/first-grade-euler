@@ -87,7 +87,7 @@ sourceFileName=`basename "$SourceFile"`
 echo "Recognizing $sourceFileName with $Language language. Result will be saved in $OutFormat format.."
 
 echo "Uploading.."
-response=`curl -s -S --user "$ApplicationId:$Password" --form "upload=@$SourceFile" "$ServerUrl/processImage?exportFormat=$OutFormat&profile=TextExtraction&language=$Language"`
+response=`curl -s -S --user "$ApplicationId:$Password" --form "upload=@$SourceFile" "$ServerUrl/processImage?exportFormat=$OutFormat&profile=TextExtraction&language=$Language&correctOrientation=false"`
 
 
 #Select guid from response string
