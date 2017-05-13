@@ -14,7 +14,8 @@ Hi, Euler!
 </body>
 
 <script>
-    var PROXY_URL = 'http://10.10.7.160:1337/';
+    const PROXY_URL = 'http://10.10.7.160:1337/';
+    const AUTH = 'Basic Zmlyc3QtZ3JhZGUtZXVsZXI6dDQwQko1YUs5OTZZN2hzRjFWREIxdUtW';
 
     input = document.getElementById('input');
     output = document.getElementById('output');
@@ -36,9 +37,10 @@ Hi, Euler!
     }
 
     function processImage() {
+
         $.post({
             headers: {
-                authorization: 'Basic Zmlyc3QtZ3JhZGUtZXVsZXI6dDQwQko1YUs5OTZZN2hzRjFWREIxdUtW'
+                authorization: AUTH
             },
             url: PROXY_URL + 'cloud.ocrsdk.com/processImage?exportFormat=xml&profile=TextExtraction&language=English',
             data: new FormData($('form')[0]),
@@ -57,7 +59,7 @@ Hi, Euler!
         $.get({
             url: PROXY_URL + 'cloud.ocrsdk.com/getTaskStatus?taskId=' + taskId,
             headers: {
-                'authorization': 'Basic Zmlyc3QtZ3JhZGUtZXVsZXI6dDQwQko1YUs5OTZZN2hzRjFWREIxdUtW'
+                authorization: AUTH
             }
         }).done(function (resp) {
             console.log('getTaskStatus', resp);
@@ -76,8 +78,8 @@ Hi, Euler!
     function getXMLResult(resultUrl) {
         $.get({
             url: resultUrl.replace('https://', PROXY_URL)
-        }).done(function (response) {
-            console.log('getXMLResult', response);
+        }).done(function (resp) {
+            console.log('getXMLResult', resp);
         });
     }
 
