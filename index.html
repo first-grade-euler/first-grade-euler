@@ -66,10 +66,8 @@ Hi, Euler!
     function readImg(file) {
         let reader = new FileReader();
         reader.onload = function (e) {
-            var img = e.target.result;
-            OUTPUT.innerHTML = '<img src="' + img + '" alt="output image" id="output-image" class="img-fluid">';
             let img = e.target.result;
-            OUTPUT.innerHTML = '<img src="' + img + '" alt="output image" id="output-image">';
+            OUTPUT.innerHTML = '<img src="' + img + '" alt="output image" id="output-image" class="img-fluid">';
             document.getElementsByClassName("center")[0].setAttribute("style", "height: auto;");
         };
         reader.readAsDataURL(file);
