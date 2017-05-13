@@ -3,21 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <title>First Grade Euler</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
 <body>
 Hi, Euler!
-<input type="file" id="input" accept="image/jpeg, image/png, image/bmp">
+<form enctype="multipart/form-data">
+    <input name="file" type="file" id="input" accept="image/jpeg, image/png"/>
+</form>
 <div id="output"></div>
 </body>
 
 <script>
+    var PROXY_URL = 'http://10.10.7.160:1337/';
+
     input = document.getElementById('input');
     output = document.getElementById('output');
+
     input.addEventListener('change', function (e) {
         if (this.files.length > 0) {
             readImg(this.files[0]);
+            processImage();
         }
     });
+
     function readImg(file) {
         var reader = new FileReader();
         reader.onload = function (e) {
@@ -26,5 +34,52 @@ Hi, Euler!
         };
         reader.readAsDataURL(file);
     }
+
+    function processImage() {
+        $.post({
+            headers: {
+                authorization: 'Basic Zmlyc3QtZ3JhZGUtZXVsZXI6dDQwQko1YUs5OTZZN2hzRjFWREIxdUtW'
+            },
+            url: PROXY_URL + 'cloud.ocrsdk.com/processImage?exportFormat=xml&profile=TextExtraction&language=English',
+            data: new FormData($('form')[0]),
+
+            cache: false,
+            contentType: false,
+            processData: false
+        }).done(function (resp) {
+            console.log('processImage', resp);
+            taskId = resp.firstChild.firstChild.getAttribute('id');
+            getTaskStatus(taskId)
+        });
+    }
+
+    function getTaskStatus(taskId) {
+        $.get({
+            url: PROXY_URL + 'cloud.ocrsdk.com/getTaskStatus?taskId=' + taskId,
+            headers: {
+                'authorization': 'Basic Zmlyc3QtZ3JhZGUtZXVsZXI6dDQwQko1YUs5OTZZN2hzRjFWREIxdUtW'
+            }
+        }).done(function (resp) {
+            console.log('getTaskStatus', resp);
+            status = resp.firstChild.firstChild.getAttribute('status');
+            if (status === 'Completed') {
+                resultUrl = resp.firstChild.firstChild.getAttribute('resultUrl');
+                getXMLResult(resultUrl);
+            } else {
+                setTimeout(function () {
+                    getTaskStatus(taskId);
+                }, 5000);
+            }
+        });
+    }
+
+    function getXMLResult(resultUrl) {
+        $.get({
+            url: resultUrl.replace('https://', PROXY_URL)
+        }).done(function (response) {
+            console.log('getXMLResult', response);
+        });
+    }
+
 </script>
 </html>
