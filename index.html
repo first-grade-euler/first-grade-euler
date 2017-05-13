@@ -26,8 +26,6 @@
 </head>
 <body>
 
-Hi, Euler!
-
 <div id="output-container">
     <div id="output">
         <!-- Output Image-->
@@ -78,7 +76,7 @@ Hi, Euler!
             headers: {
                 authorization: AUTH
             },
-            url: PROXY_URL + 'cloud.ocrsdk.com/processImage?exportFormat=xml&profile=TextExtraction&language=English',
+            url: PROXY_URL + 'cloud.ocrsdk.com/processImage?exportFormat=xml&profile=TextExtraction&language=English&correctOrientation=false',
             data: new FormData($('form')[0]),
 
             cache: false,
@@ -178,7 +176,9 @@ Hi, Euler!
             [/l/g, '1'],
             [/x/g, '*'],
             [/»/g, '+'],
+            [/□/g, ''],
 
+            [/^.*?:/, ''],
             [/^.*\./, ''], // `1.2+3-4` -> `2+3-4`
             [/^.*\(\d+\)/, ''] // `  (12) 2 + 3` -> ` 2 + 3`
         ];
@@ -186,13 +186,16 @@ Hi, Euler!
         for (let ei in equs) {
             let e = equs[ei];
             console.log('smoothing', e.equ);
+            let equ = e.equ;
 
             for (let ri in rep) {
                 e.equ = e.equ.replace(rep[ri][0], rep[ri][1]);
             }
 
-            let c = e.equ.replace(/[^\d=+*\-\s]/g, ''); // `ab  123+ 3` -> `  123+ 3`
+            let c = e.equ.replace(/[^\d=+*\-\s]/g, ' '); // `ab  123+ 3` -> `  123+ 3`
             if (c.length >= 3 && e.equ.length < c.length * 2) {
+
+                e.r = fixRPos(equ, e.equ.trimRight(), e.pos);
                 e.equ = c.replace(/[=\-] *$/, ''); // `1 + 2 - ` -> `1 + 2 `
                 if (e.equ.search(/[+*\-]/) > 0) { // must have at least an operator
                     console.log('smoothed', e.equ);
@@ -205,6 +208,12 @@ Hi, Euler!
                 }
             }
         }
+    }
+
+    function fixRPos(e, f, p) {
+        let id = e.search(/=/);
+        if (id > 0) return p[id];
+        return p[p.length-1];
     }
 
     function writeEqu(e) {
