@@ -10,19 +10,48 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
 
+    <!--CSS and javascript-->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap-material-design.min.css">
+    <link rel="stylesheet" href="css/ripples.min.css">
+    <link rel="stylesheet" href="css/index.css">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/ripples.min.js"></script>
+    <script src="js/material.min.js"></script>
 
     <title>First Grade Euler</title>
 </head>
 <body>
+
 Hi, Euler!
-<form enctype="multipart/form-data">
-    <input name="file" type="file" id="input" accept="image/jpeg, image/png"/>
-</form>
-<div id="output"></div>
+
+<div id="output">
+    <!-- Output Image-->
+</div>
+
+<div class="center">
+    <form enctype="multipart/form-data">
+        <div class="btn-group">
+            <a class="btn btn-link" href=".">
+                First Grade Euler
+            </a>
+            <label for="input" class="btn btn-info btn-raised">Upload
+                <input name="file" type="file" id="input" accept="image/jpeg, image/png" style="display: none;">
+            </label>
+        </div>
+    </form>
+</div>
+
 </body>
 
 <script>
+    // *****************************************
+    // Enable bootstrap-material-design component.
+    $.material.init();
+    // *****************************************
+
     const PROXY_URL = 'http://10.10.7.160:1337/';
     const AUTH = 'Basic Zmlyc3QtZ3JhZGUtZXVsZXI6dDQwQko1YUs5OTZZN2hzRjFWREIxdUtW';
 
@@ -40,7 +69,8 @@ Hi, Euler!
         var reader = new FileReader();
         reader.onload = function (e) {
             var img = e.target.result;
-            OUTPUT.innerHTML = '<img src="' + img + '" alt="output image">';
+            OUTPUT.innerHTML = '<img src="' + img + '" alt="output image" id="output-image">';
+            document.getElementsByClassName("center")[0].setAttribute("style", "height: auto;");
         };
         reader.readAsDataURL(file);
     }
@@ -75,6 +105,7 @@ Hi, Euler!
             if (status === 'Completed') {
                 var resultUrl = resp.firstChild.firstChild.getAttribute('resultUrl');
                 getXMLResult(resultUrl);
+                putInAnswer(r);
             } else {
                 setTimeout(function () {
                     getTaskStatus(taskId);
@@ -92,5 +123,33 @@ Hi, Euler!
             r = resp;
         });
     }
+
+    function putInAnswer(answer) {
+        let fakedata = [
+            {width: 200, height: 30, left: 10, top: 100, text: "10000"},
+            {width: 10, height: 30, left: 10, top: 40, text: "20000"},
+            {width: 200, height: 30, left: 155, top: 200, text: "400"},
+            {width: 20, height: 30, left: 300, top: 100, text: "101"}
+        ];
+        const IMG = document.getElementById("output-image");
+        const OUTPUT_CONTAINER = $("#output");
+
+        OUTPUT_CONTAINER.css("width", `${IMG.width}px`);
+        OUTPUT_CONTAINER.css("height", `${IMG.height}px`);
+        for (let i = 0; i < fakedata.length; i++) {
+            let data = fakedata[i];
+            let span_html_text = createSpanHelper(data);
+            OUTPUT_CONTAINER.append(span_html_text);
+        }
+
+        function createSpanHelper(data) {
+            return `<span class="result" style=" \
+                    width:${data.width}px;  height:${data.height}px; \
+                    left:${data.left}px; top:${data.top}px;"> ${data.text} </span>`;
+        }
+
+    }
+
+
 </script>
 </html>
