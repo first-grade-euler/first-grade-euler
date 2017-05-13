@@ -131,9 +131,9 @@ Hi, Euler!
         function createSpanHelper(data) {
             const IMG = document.getElementById("output-image");
             return `<span class="result" style="
-                    left:${(data.r + (data.b - data.t) / 2 ) / IMG.width * 100}%;
-                    top:${(data.t - (data.b - data.t) * 0.2 ) / IMG.height * 100}%;
-                    font-size: ${(data.b - data.t) * 1.5}px;
+                    left:${(data.r + (data.b - data.t) / 2 ) / IMG.naturalWidth * 100}%;
+                    top:${(data.t - (data.b - data.t) * 0.5 ) / IMG.naturalHeight * 100}%;
+                    font-size: ${(data.b - data.t) * (IMG.height / IMG.naturalHeight) * 1.5}px;
                     "> ${data.ans} </span>`;
         }
     }
