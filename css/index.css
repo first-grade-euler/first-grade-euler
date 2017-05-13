@@ -19,8 +19,14 @@ body > div.container {
     align-items: center;
 }
 
-#output {
+#output-container {
     display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#output {
+    display: inline-flex;
     justify-content: center;
     align-items: center;
     position: relative;
@@ -31,5 +37,6 @@ span.result {
     position: absolute;
     display: block;
     font-family: Handlee;
+    font-size: 1em;
 }
 
