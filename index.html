@@ -17,10 +17,10 @@ Hi, Euler!
     const PROXY_URL = 'http://10.10.7.160:1337/';
     const AUTH = 'Basic Zmlyc3QtZ3JhZGUtZXVsZXI6dDQwQko1YUs5OTZZN2hzRjFWREIxdUtW';
 
-    input = document.getElementById('input');
-    output = document.getElementById('output');
+    const INPUT = document.getElementById('input');
+    const OUTPUT = document.getElementById('output');
 
-    input.addEventListener('change', function (e) {
+    INPUT.addEventListener('change', function (e) {
         if (this.files.length > 0) {
             readImg(this.files[0]);
             processImage();
@@ -31,13 +31,12 @@ Hi, Euler!
         var reader = new FileReader();
         reader.onload = function (e) {
             var img = e.target.result;
-            output.innerHTML = '<img src="' + img + '" alt="output image">';
+            OUTPUT.innerHTML = '<img src="' + img + '" alt="output image">';
         };
         reader.readAsDataURL(file);
     }
 
     function processImage() {
-
         $.post({
             headers: {
                 authorization: AUTH
@@ -63,9 +62,9 @@ Hi, Euler!
             }
         }).done(function (resp) {
             console.log('getTaskStatus', resp);
-            status = resp.firstChild.firstChild.getAttribute('status');
+            var status = resp.firstChild.firstChild.getAttribute('status');
             if (status === 'Completed') {
-                resultUrl = resp.firstChild.firstChild.getAttribute('resultUrl');
+                var resultUrl = resp.firstChild.firstChild.getAttribute('resultUrl');
                 getXMLResult(resultUrl);
             } else {
                 setTimeout(function () {
@@ -82,6 +81,5 @@ Hi, Euler!
             console.log('getXMLResult', resp);
         });
     }
-
 </script>
 </html>
