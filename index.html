@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>First Grade Euler</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="shortcut icon" href="/favicon.ico">
 </head>
 <body>
 Hi, Euler!
@@ -74,11 +75,13 @@ Hi, Euler!
         });
     }
 
+    var r;
     function getXMLResult(resultUrl) {
         $.get({
             url: resultUrl.replace('https://', PROXY_URL)
         }).done(function (resp) {
             console.log('getXMLResult', resp);
+            r = resp;
         });
     }
 </script>
