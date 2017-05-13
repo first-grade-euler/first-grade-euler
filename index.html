@@ -122,36 +122,31 @@ Hi, Euler!
     }
 
     function putInAnswer(answer) {
-        let fakedata = [
-            {width: 200, height: 30, left: 10, top: 100, text: "10000"},
-            {width: 10, height: 30, left: 10, top: 40, text: "20000"},
-            {width: 200, height: 30, left: 155, top: 200, text: "400"},
-            {width: 20, height: 30, left: 300, top: 100, text: "101"}
-        ];
-
-        for (let i = 0; i < fakedata.length; i++) {
-            let data = fakedata[i];
+        for (let i = 0; i < answer.length; i++) {
+            let data = answer[i];
             let span_html_text = createSpanHelper(data);
             $("#output").append(span_html_text);
         }
 
         function createSpanHelper(data) {
             const IMG = document.getElementById("output-image");
-            return `<span class="result" style=" \
-                    width:${data.width}px;  height:${data.height}px; \
-                    left:${data.left / IMG.width * 100}%; top:${data.top / IMG.height * 100}%;"> ${data.text} </span>`;
+            return `<span class="result" style="
+                    left:${(data.r + (data.b - data.t) / 2 ) / IMG.width * 100}%;
+                    top:${(data.t - (data.b - data.t) * 0.2 ) / IMG.height * 100}%;
+                    font-size: ${(data.b - data.t) * 1.5}px;
+                    "> ${data.ans} </span>`;
         }
     }
 
     function parseXML(resp) {
         let equs = [];
         let lines = resp.getElementsByTagName('line');
-        for(let i = 0; i < lines.length; i++){
+        for (let i = 0; i < lines.length; i++) {
             let aline = lines[i];
             let poses = [];
             let strs = aline.getElementsByTagName('charParams');
             let equ = '';
-            for(let j = 0; j < strs.length; j++){
+            for (let j = 0; j < strs.length; j++) {
                 equ += strs[j].childNodes[0].nodeValue;
                 poses[j] = Number(strs[j].getAttribute('r'));
             }
@@ -214,6 +209,7 @@ Hi, Euler!
 
     function writeEqu(e) {
         console.log('writeEqu', e.equ, e.ans);
+        putInAnswer([e]);
     }
 </script>
 </html>
