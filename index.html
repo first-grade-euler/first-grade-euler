@@ -64,10 +64,12 @@ Hi, Euler!
     });
 
     function readImg(file) {
-        var reader = new FileReader();
+        let reader = new FileReader();
         reader.onload = function (e) {
             var img = e.target.result;
             OUTPUT.innerHTML = '<img src="' + img + '" alt="output image" id="output-image" class="img-fluid">';
+            let img = e.target.result;
+            OUTPUT.innerHTML = '<img src="' + img + '" alt="output image" id="output-image">';
             document.getElementsByClassName("center")[0].setAttribute("style", "height: auto;");
         };
         reader.readAsDataURL(file);
@@ -99,11 +101,11 @@ Hi, Euler!
             }
         }).done(function (resp) {
             console.log('getTaskStatus', resp);
-            var status = resp.firstChild.firstChild.getAttribute('status');
+            let status = resp.firstChild.firstChild.getAttribute('status');
             if (status === 'Completed') {
-                var resultUrl = resp.firstChild.firstChild.getAttribute('resultUrl');
+                let resultUrl = resp.firstChild.firstChild.getAttribute('resultUrl');
                 getXMLResult(resultUrl);
-                putInAnswer(r);
+                putInAnswer({});
             } else {
                 setTimeout(function () {
                     getTaskStatus(taskId);
@@ -112,13 +114,12 @@ Hi, Euler!
         });
     }
 
-    var r;
     function getXMLResult(resultUrl) {
         $.get({
             url: resultUrl.replace('https://', PROXY_URL)
         }).done(function (resp) {
             console.log('getXMLResult', resp);
-            r = resp;
+            parseXML(resp);
         });
     }
 
@@ -144,6 +145,72 @@ Hi, Euler!
         }
     }
 
+    function parseXML(resp) {
+        let equs = [];
+        let lines = resp.getElementsByTagName('line');
+        for(let i = 0; i < lines.length; i++){
+            let aline = lines[i];
+            let strs = aline.getElementsByTagName('charParams');
+            let equ = '';
+            for(let j = 0; j < strs.length; j++){
+                equ += strs[j].childNodes[0].nodeValue;
+            }
+            equs[i] = {
+                equ: equ,
+                l: Number(aline.getAttribute('l')),
+                t: Number(aline.getAttribute('t')),
+                r: Number(aline.getAttribute('r')),
+                b: Number(aline.getAttribute('b'))
+            };
+        }
+        console.log('parseXML', equs);
+        smooth(equs);
+    }
 
+    function smooth(equs) {
+        let rep = [
+            [/—/g, '-'],
+            [/二/g, '='],
+            [/f/g, '+'],
+            [/I/g, '+'],
+            [/•/g, '+'],
+            [/L/g, '1'],
+            [/—/g, '-'],
+            [/o/g, '0'],
+            [/i/g, '1'],
+            [/l/g, '1'],
+            [/x/g, '*'],
+
+            [/^.*\./, ''], // `1.2+3-4` -> `2+3-4`
+            [/^.*\(\d+\)/, ''] // `  (12) 2 + 3` -> ` 2 + 3`
+        ];
+
+        for (let ei in equs) {
+            let e = equs[ei];
+            console.log('smoothing', e.equ);
+
+            for (let ri in rep) {
+                e.equ = e.equ.replace(rep[ri][0], rep[ri][1]);
+            }
+
+            let c = e.equ.replace(/[^\d=+*\-\s]/g, ''); // `ab  123+ 3` -> `  123+ 3`
+            if (c.length >= 3 && e.equ.length < c.length * 2) {
+                e.equ = c.replace(/[=\-] *$/, ''); // `1 + 2 - ` -> `1 + 2 `
+                if (e.equ.search(/[+*\-]/) > 0) { // must have at least an operator
+                    console.log('smoothed', e.equ);
+                    try {
+                        e.ans = eval(e.equ);
+                        writeEqu(e);
+                    } catch (err) {
+                        console.log('eval error:', e.equ);
+                    }
+                }
+            }
+        }
+    }
+
+    function writeEqu(e) {
+        console.log('writeEqu', e.equ, e.ans);
+    }
 </script>
 </html>
