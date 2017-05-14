@@ -83,16 +83,19 @@
 
     function resizeImage(base64Img) {
         let img = new Image();
+        img.onload = function () {
+            img = compress(img);
+            // console.log('compress', img.src);
+            let blob = dataURItoBlob(img.src);
+            OUTPUT.innerHTML = '<img src="' + img.src + '" alt="output image" id="output-image" class="img-fluid">';
+            $("#output-container").fadeIn(1000);
+            $("#input-btn").addClass('disabled');
+            setProgressBar(0);
+            setProgressBar(25);
+            processImage(blob);
+
+        };
         img.src = base64Img;
-        img = compress(img);
-        // console.log('compress', img.src);
-        let blob = dataURItoBlob(img.src);
-        OUTPUT.innerHTML = '<img src="' + img.src + '" alt="output image" id="output-image" class="img-fluid">';
-        $("#output-container").fadeIn(1000);
-        $("#input-btn").addClass('disabled');
-        setProgressBar(0);
-        setProgressBar(25);
-        processImage(blob);
     }
 
     function compress(source_img_obj){
