@@ -118,7 +118,7 @@
 
     function getXMLResult(resultUrl) {
         $.get({
-            url: resultUrl.replace('https://', PROXY_URL)
+            url: resultUrl.replace(/^https?:\/\//, PROXY_URL)
         }).done(function (resp) {
             console.log('getXMLResult', resp);
             parseXML(resp);
