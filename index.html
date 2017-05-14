@@ -47,7 +47,7 @@
                 <a href=".">
                     <img src="title.png" alt="">
                 </a>
-                <label for="input" class="btn btn-info btn-raised">Try it!</label>
+                <label for="input" class="btn btn-info btn-raised" id="input-btn">Try it!</label>
                 <a href=".">
                     <img src="favicon.ico" alt="">
                 </a>
@@ -81,6 +81,8 @@
             OUTPUT.innerHTML = '<img src="' + img + '" alt="output image" id="output-image" class="img-fluid">';
 
             $("#output-container").fadeIn(1000);
+            $("#input-btn").addClass('disabled');
+
             setProgressBar(0);
             setProgressBar(25);
         };
@@ -226,6 +228,7 @@
             }
         }
         setProgressBar(100);
+        $("#input-btn").removeClass('disabled');
     }
 
     function fixRPos(e, f, p) {
