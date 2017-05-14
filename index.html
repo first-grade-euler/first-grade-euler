@@ -56,15 +56,15 @@
                 </form>
             </div>
         </div>
-        <div style="text-align: center;"><span>OCR by</span><a href="ocrsdk.com">ocrsdk.com</a></div>
+        <div style="text-align: center;"><span>Developed by Jiong Cai, Jun Mei and Liwen Zhang. OCR by</span><a href="ocrsdk.com">ocrsdk.com</a><span>.</span></div>
     </div>
 </div>
 </body>
 
 <script>
     const PROXY_URL = 'http://104.155.235.236:1337/';
-    const AUTH = 'Basic Zmlyc3QtZ3JhZGUtZXVsZXI6dDQwQko1YUs5OTZZN2hzRjFWREIxdUtW'; // Jun
-    //    const AUTH = 'Basic Rmlyc3RFdWxlcjoxMDV0WmVTb2tMalNZTjBpdUZBZFR6SEw='; // Liwen
+//    const AUTH = 'Basic Zmlyc3QtZ3JhZGUtZXVsZXI6dDQwQko1YUs5OTZZN2hzRjFWREIxdUtW'; // Jun
+    const AUTH = 'Basic Rmlyc3RFdWxlcjoxMDV0WmVTb2tMalNZTjBpdUZBZFR6SEw='; // Liwen
 
     const INPUT = document.getElementById('input');
     const OUTPUT = document.getElementById('output');
@@ -90,15 +90,15 @@
     function resizeImage(base64Img) {
         let img = new Image();
         img.onload = function () {
-            img = compress(img);
-            // console.log('compress', img.src);
+            if (img.naturalHeight > MAX_LENGTH || img.naturalWidth > MAX_LENGTH) {
+                img = compress(img);
+            }
             let blob = dataURItoBlob(img.src);
             OUTPUT.innerHTML = '<img src="' + img.src + '" alt="output image" id="output-image" class="img-fluid">';
             $("#output-container").fadeIn(1000);
             setProgressBar(0);
             setProgressBar(25);
             processImage(blob);
-
         };
         img.src = base64Img;
     }
