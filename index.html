@@ -63,12 +63,17 @@
 
 <script>
     const PROXY_URL = 'http://104.155.235.236:1337/';
-    const AUTH = 'Basic Zmlyc3QtZ3JhZGUtZXVsZXI6dDQwQko1YUs5OTZZN2hzRjFWREIxdUtW';
+    const AUTH = 'Basic Zmlyc3QtZ3JhZGUtZXVsZXI6dDQwQko1YUs5OTZZN2hzRjFWREIxdUtW'; // Jun
+    //    const AUTH = 'Basic Rmlyc3RFdWxlcjoxMDV0WmVTb2tMalNZTjBpdUZBZFR6SEw='; // Liwen
 
     const INPUT = document.getElementById('input');
     const OUTPUT = document.getElementById('output');
 
     INPUT.addEventListener('change', function (e) {
+        $("#input-btn").on('click', function () {
+            location.reload();
+            return false;
+        });
         if (this.files.length > 0) {
             readImg(this.files[0]);
         }
@@ -90,7 +95,6 @@
             let blob = dataURItoBlob(img.src);
             OUTPUT.innerHTML = '<img src="' + img.src + '" alt="output image" id="output-image" class="img-fluid">';
             $("#output-container").fadeIn(1000);
-            $("#input-btn").addClass('disabled');
             setProgressBar(0);
             setProgressBar(25);
             processImage(blob);
@@ -99,22 +103,34 @@
         img.src = base64Img;
     }
 
+    const MAX_LENGTH = 2000;
+
     function compress(source_img_obj) {
         let cvs = document.createElement('canvas');
-        let time;
-        if (source_img_obj.naturalWidth > 1000 || source_img_obj.naturalHeight > 1000) {
-            let max = source_img_obj.naturalWidth > source_img_obj.naturalHeight ? source_img_obj.naturalWidth : source_img_obj.naturalHeight;
-            time = 1000 / max;
-            cvs.width = source_img_obj.naturalWidth * time;
-            cvs.height = source_img_obj.naturalHeight * time;
-        } else {
-            time = 1.0;
-            cvs.width = source_img_obj.naturalWidth;
-            cvs.height = source_img_obj.naturalHeight;
+//        let time;
+//        if (source_img_obj.naturalWidth > MAX_LENGTH || source_img_obj.naturalHeight > MAX_LENGTH) {
+//            let max = source_img_obj.naturalWidth > source_img_obj.naturalHeight ? source_img_obj.naturalWidth : source_img_obj.naturalHeight;
+//            time = MAX_LENGTH / max;
+//            cvs.width = source_img_obj.naturalWidth * time;
+//            cvs.height = source_img_obj.naturalHeight * time;
+//        } else {
+//            time = 1.0;
+//            cvs.width = source_img_obj.naturalWidth;
+//            cvs.height = source_img_obj.naturalHeight;
+//
+//        }
+//        let ctx = cvs.getContext("2d");
+//        ctx.drawImage(source_img_obj, 0, 0, source_img_obj.naturalWidth * time, source_img_obj.naturalHeight * time);
 
+        cvs.width = source_img_obj.naturalWidth;
+        cvs.height = source_img_obj.naturalHeight;
+        while (cvs.width > MAX_LENGTH || cvs.height > MAX_LENGTH) {
+            cvs.width /= 2;
+            cvs.height /= 2;
         }
-        let ctx = cvs.getContext("2d");
-        ctx.drawImage(source_img_obj, 0, 0, source_img_obj.naturalWidth * time, source_img_obj.naturalHeight * time);
+        let ctx = cvs.getContext('2d');
+        ctx.drawImage(source_img_obj, 0, 0, cvs.width, cvs.height);
+
         let newImageData = cvs.toDataURL("image/jpeg", 0.92);
         let result_image_obj = new Image();
         result_image_obj.src = newImageData;
@@ -157,6 +173,7 @@
             processData: false
         }).done(function (resp) {
             console.log('processImage', resp);
+            setProgressBar(50);
             taskId = resp.firstChild.firstChild.getAttribute('id');
             getTaskStatus(taskId)
         });
@@ -256,6 +273,7 @@
             [/^.*\(\d+\)/, ''] // `  (12) 2 + 3` -> ` 2 + 3`
         ];
 
+        let toWrite = [];
         for (let ei in equs) {
             let e = equs[ei];
             console.log('smoothing', e.equ);
@@ -271,29 +289,28 @@
                 e.r = fixRPos(equ, e.equ.trimRight(), e.pos);
                 e.equ = c.replace(/[=\-] *$/, ''); // `1 + 2 - ` -> `1 + 2 `
                 if (e.equ.search(/[+*\-]/) > 0) { // must have at least an operator
+                    e.equ = e.equ.replace(/\s/g, '');
                     console.log('smoothed', e.equ);
                     try {
                         e.ans = eval(e.equ);
-                        writeEqu(e);
+                        console.log('pushEqu', e.equ, e.ans);
+                        toWrite.push(e);
                     } catch (err) {
                         console.log('eval error:', e.equ);
                     }
+                    e.equ = c.replace(/[=\-] *$/, ''); // `1 + 2 - ` -> `1 + 2 `
                 }
             }
         }
         setProgressBar(100);
-        $("#input-btn").removeClass('disabled');
+        putInAnswer(toWrite);
+        $("#input-btn").unbind('click');
     }
 
     function fixRPos(e, f, p) {
         let id = e.search(/=/);
         if (id > 0) return p[id];
         return p[p.length - 1];
-    }
-
-    function writeEqu(e) {
-        console.log('writeEqu', e.equ, e.ans);
-        putInAnswer([e]);
     }
 
     function setProgressBar(percentage) {
@@ -304,5 +321,42 @@
             $("#image-progress-bar").parent().addClass("active");
         }
     }
+
+
+    const AUTO_IMAGES = ['00.jpg', '01.jpg', '02.jpg', '03.jpg', '04.jpg'];
+    const AUTO_IMAGE_URL = './dataset/';
+    const AUTO_TIMEOUT = 20000;
+    const AUTO_FIRST_TIMEOUT = 10000;
+    const AUTO_TIMES = 100;
+    let doAutoShow = true;
+    $('#input-btn').on('click', function () {
+        doAutoShow = false;
+    });
+
+    setTimeout(function () {
+        if (doAutoShow) {
+            for (let i = 0; i < AUTO_TIMES; i++) {
+                setTimeout(function () {
+                    autoShow(AUTO_IMAGE_URL + AUTO_IMAGES[i % AUTO_IMAGES.length]);
+                }, AUTO_TIMEOUT * i);
+            }
+        }
+    }, AUTO_FIRST_TIMEOUT);
+
+    function autoShow(url) {
+        let xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+            let reader = new FileReader();
+            reader.onloadend = function () {
+                let img = reader.result;
+                resizeImage(img);
+            };
+            reader.readAsDataURL(xhr.response);
+        };
+        xhr.open('GET', url);
+        xhr.responseType = 'blob';
+        xhr.send();
+    }
+
 </script>
 </html>
