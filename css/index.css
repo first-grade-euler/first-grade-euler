@@ -64,10 +64,13 @@ html, body {
 }
 
 #btn-container label.btn {
+    text-transform: none;
+    font-weight: 100;
     box-sizing: content-box;
     width: 25%;
-    line-height: 60px;
-    padding: 5px;
+    line-height: 2em;
+    font-size: 2.5em;
+    padding: 12.5px;
 }
 
 #btn-container a > img {
