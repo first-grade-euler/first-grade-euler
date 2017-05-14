@@ -70,32 +70,83 @@
     INPUT.addEventListener('change', function (e) {
         if (this.files.length > 0) {
             readImg(this.files[0]);
-            processImage();
         }
     });
 
     function readImg(file) {
         let reader = new FileReader();
         reader.onload = function (e) {
-            let img = e.target.result;
-            OUTPUT.innerHTML = '<img src="' + img + '" alt="output image" id="output-image" class="img-fluid">';
-
-            $("#output-container").fadeIn(1000);
-            $("#input-btn").addClass('disabled');
-
-            setProgressBar(0);
-            setProgressBar(25);
+            resizeImage(e.target.result);
         };
         reader.readAsDataURL(file);
     }
 
-    function processImage() {
+    function resizeImage(base64Img) {
+        let img = new Image();
+        img.src = base64Img;
+        img = compress(img);
+        // console.log('compress', img.src);
+        let blob = dataURItoBlob(img.src);
+        OUTPUT.innerHTML = '<img src="' + img.src + '" alt="output image" id="output-image" class="img-fluid">';
+        $("#output-container").fadeIn(1000);
+        $("#input-btn").addClass('disabled');
+        setProgressBar(0);
+        setProgressBar(25);
+        processImage(blob);
+    }
+
+    function compress(source_img_obj){
+        let cvs = document.createElement('canvas');
+        let time;
+        if (source_img_obj.naturalWidth > 1000 || source_img_obj.naturalHeight > 1000){
+            let max = source_img_obj.naturalWidth > source_img_obj.naturalHeight ? source_img_obj.naturalWidth: source_img_obj.naturalHeight;
+            time = 1000/max;
+            cvs.width = source_img_obj.naturalWidth * time;
+            cvs.height = source_img_obj.naturalHeight * time;
+        }else {
+            time = 1.0;
+            cvs.width = source_img_obj.naturalWidth;
+            cvs.height = source_img_obj.naturalHeight;
+
+        }
+        let ctx = cvs.getContext("2d");
+        ctx.drawImage(source_img_obj, 0, 0, source_img_obj.naturalWidth * time, source_img_obj.naturalHeight * time);
+        let newImageData = cvs.toDataURL("image/jpeg", 0.92);
+        let result_image_obj = new Image();
+        result_image_obj.src = newImageData;
+        return result_image_obj;
+    }
+
+    function dataURItoBlob(dataURI) {
+        // convert base64/URLEncoded data component to raw binary data held in a string
+        let byteString;
+        if (dataURI.split(',')[0].indexOf('base64') >= 0)
+            byteString = atob(dataURI.split(',')[1]);
+        else
+            byteString = unescape(dataURI.split(',')[1]);
+
+        // separate out the mime component
+        let mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+        // write the bytes of the string to a typed array
+        let ia = new Uint8Array(byteString.length);
+        for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+        }
+
+        return new Blob([ia], {type:mimeString});
+    }
+
+    function processImage(blob) {
+        let fd = new FormData();
+        fd.append('image',blob);
         $.post({
             headers: {
                 authorization: AUTH
             },
             url: PROXY_URL + 'cloud.ocrsdk.com/processImage?exportFormat=xml&profile=TextExtraction&language=English&correctOrientation=false',
-            data: new FormData($('form')[0]),
+
+            data:  fd,
 
             cache: false,
             contentType: false,
@@ -103,8 +154,7 @@
         }).done(function (resp) {
             console.log('processImage', resp);
             taskId = resp.firstChild.firstChild.getAttribute('id');
-            getTaskStatus(taskId);
-            setProgressBar(50);
+            getTaskStatus(taskId)
         });
     }
 
