@@ -21,6 +21,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.0/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/4.0.2/bootstrap-material-design.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Ripple.js/1.2.1/ripple.min.js"></script>
+    <script src="js/load-image.all.min.js"></script>
 
     <title>First-Grade Euler</title>
 </head>
@@ -56,28 +57,29 @@
                 </form>
             </div>
         </div>
-        <div style="text-align: center;"><span>Developed by Jiong Cai, Jun Mei and Liwen Zhang. OCR by</span><a href="ocrsdk.com">ocrsdk.com</a><span>.</span></div>
+        <div style="text-align: center;"><span>Developed by Jiong Cai, Jun Mei and Liwen Zhang. OCR by</span><a
+                href="ocrsdk.com">ocrsdk.com</a><span>.</span></div>
     </div>
 </div>
 </body>
 
 <script>
     const PROXY_URL = 'http://104.155.235.236:1337/';
-//    const AUTH = 'Basic Zmlyc3QtZ3JhZGUtZXVsZXI6dDQwQko1YUs5OTZZN2hzRjFWREIxdUtW'; // Jun
-    const AUTH = 'Basic Rmlyc3RFdWxlcjoxMDV0WmVTb2tMalNZTjBpdUZBZFR6SEw='; // Liwen
-//    const AUTH = 'Basic Rmlyc3QtR3JhZGUgRXVsZXI6NWJRZHNpSGRhdmRWcXgwb3FuUDNaSXA1'; // Jiong
+    //    const AUTH = 'Basic Zmlyc3QtZ3JhZGUtZXVsZXI6dDQwQko1YUs5OTZZN2hzRjFWREIxdUtW'; // Jun
+    //    const AUTH = 'Basic Rmlyc3RFdWxlcjoxMDV0WmVTb2tMalNZTjBpdUZBZFR6SEw='; // Liwen
+    const AUTH = 'Basic Rmlyc3QtR3JhZGUgRXVsZXI6NWJRZHNpSGRhdmRWcXgwb3FuUDNaSXA1'; // Jiong
 
     const INPUT = document.getElementById('input');
     const OUTPUT = document.getElementById('output');
 
     INPUT.addEventListener('change', function (e) {
-        $("#input-btn").on('click', function () {
-            location.reload();
-            return false;
-        });
-        if (this.files.length > 0) {
-            readImg(this.files[0]);
-        }
+        loadImage(
+                e.target.files[0],
+                function (img) {
+                    resizeImage(img.toDataURL("image/jpeg", 0.92));
+                },
+                {orientation: true}
+        );
     });
 
     function readImg(file) {
@@ -89,6 +91,11 @@
     }
 
     function resizeImage(base64Img) {
+        $("#input-btn").on('click', function () {
+            location.reload();
+            return false;
+        });
+
         let img = new Image();
         img.onload = function () {
             if (img.naturalHeight > MAX_LENGTH || img.naturalWidth > MAX_LENGTH) {
@@ -214,8 +221,16 @@
         for (let i = 0; i < answer.length; i++) {
             let data = answer[i];
             let span_html_text = createSpanHelper(data);
-            $("#output").append(span_html_text);
+            var new_span = $(span_html_text).hide();
+            $("#output").append(new_span);
         }
+
+        $("#output span.result").each(function (i, e) {
+            setTimeout(function () {
+                $(e).show(1 / (i) * 100);
+            }, i * 200);
+        });
+
 
         function createSpanHelper(data) {
             const IMG = document.getElementById("output-image");
@@ -305,7 +320,9 @@
         }
         setProgressBar(100);
         putInAnswer(toWrite);
-        $("#input-btn").unbind('click');
+        if (!doAutoShow) {
+            $("#input-btn").unbind('click');
+        }
     }
 
     function fixRPos(e, f, p) {
