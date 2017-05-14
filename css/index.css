@@ -50,7 +50,7 @@ html, body {
 
 /*Button*/
 #btn-container {
-    margin-top: 3em;
+    margin: 3em auto;
 }
 
 #btn-container a {
