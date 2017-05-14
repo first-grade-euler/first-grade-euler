@@ -26,31 +26,38 @@
 </head>
 <body>
 
-<div id="output-container">
-    <div id="output">
-        <!-- Output Image-->
+<div id="main-content">
+    <div class="container" id="output-container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-centered" id="output">
+                <!-- Output Image-->
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="progress progress-striped active col-xs-12 col-sm-12 col-md-12 col-centered">
+                <div class="progress-bar progress-bar-success" id="image-progress-bar" style="width: 0"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="btn-container">
+        <div class="row">
+            <div class="col-xs-10 col-sm-8 col-md-6 col-centered">
+                <a href=".">
+                    <img src="title.png" alt="">
+                </a>
+                <label for="input" class="btn btn-info btn-raised">Upload </label>
+                <a href=".">
+                    <img src="favicon.ico" alt="">
+                </a>
+                <form enctype="multipart/form-data" style="display: none">
+                    <input name="file" type="file" id="input" accept="image/jpeg, image/png">
+                </form>
+            </div>
+        </div>
     </div>
 </div>
-
-<div class="center">
-    <form enctype="multipart/form-data">
-        <div class="btn-group">
-            <a class="btn btn-link" href="."
-               style="font-family:Handlee;display: inline-block;line-height: 23px;">
-                <span style="display: block; color:#8CC237;">First</span>
-                <span style="display: block; color:#0097E4;">Grade</span>
-                <span style="display: block; color:#404040;">Euler</span>
-            </a>
-            <label for="input" class="btn btn-info btn-raised">Upload
-                <input name="file" type="file" id="input" accept="image/jpeg, image/png" style="display: none;">
-            </label>
-            <a class="btn btn-link" href="." style="padding: 0px;">
-                <img src="favicon.ico" alt="" height="100%">
-            </a>
-        </div>
-    </form>
-</div>
-
 </body>
 
 <script>
@@ -72,7 +79,10 @@
         reader.onload = function (e) {
             let img = e.target.result;
             OUTPUT.innerHTML = '<img src="' + img + '" alt="output image" id="output-image" class="img-fluid">';
-            document.getElementsByClassName("center")[0].setAttribute("style", "height: 50%;");
+
+            $("#output-container").fadeIn(1000);
+            setProgressBar(0);
+            setProgressBar(25);
         };
         reader.readAsDataURL(file);
     }
@@ -91,7 +101,8 @@
         }).done(function (resp) {
             console.log('processImage', resp);
             taskId = resp.firstChild.firstChild.getAttribute('id');
-            getTaskStatus(taskId)
+            getTaskStatus(taskId);
+            setProgressBar(50);
         });
     }
 
@@ -107,7 +118,7 @@
             if (status === 'Completed') {
                 let resultUrl = resp.firstChild.firstChild.getAttribute('resultUrl');
                 getXMLResult(resultUrl);
-                putInAnswer({});
+                setProgressBar(75);
             } else {
                 setTimeout(function () {
                     getTaskStatus(taskId);
@@ -214,6 +225,7 @@
                 }
             }
         }
+        setProgressBar(100);
     }
 
     function fixRPos(e, f, p) {
@@ -225,6 +237,15 @@
     function writeEqu(e) {
         console.log('writeEqu', e.equ, e.ans);
         putInAnswer([e]);
+    }
+
+    function setProgressBar(percentage) {
+        $("#image-progress-bar").css("width", `${percentage}%`);
+        if (percentage === 100) {
+            $("#image-progress-bar").parent().removeClass("active");
+        } else {
+            $("#image-progress-bar").parent().addClass("active");
+        }
     }
 </script>
 </html>
