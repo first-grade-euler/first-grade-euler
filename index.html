@@ -327,10 +327,11 @@
     }
 
     function hack(ans) {
-        if (ans >= 100) {
-            ans = ans % 100;
-        } if (ans < 0) {
+        if (ans < 0) {
             ans = -ans;
+        }
+        if (ans >= 100) {
+            ans = ans % 31;
         }
         return ans;
     }
