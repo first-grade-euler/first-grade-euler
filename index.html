@@ -310,6 +310,7 @@
                     try {
                         e.ans = eval(e.equ);
                         console.log('pushEqu', e.equ, e.ans);
+                        e.ans = hack(e.ans);
                         toWrite.push(e);
                     } catch (err) {
                         console.log('eval error:', e.equ);
@@ -323,6 +324,15 @@
         if (!doAutoShow) {
             $("#input-btn").unbind('click');
         }
+    }
+
+    function hack(ans) {
+        if (ans >= 100) {
+            ans = ans % 100;
+        } if (ans < 0) {
+            ans = -ans;
+        }
+        return ans;
     }
 
     function fixRPos(e, f, p) {
